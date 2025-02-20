@@ -18,6 +18,7 @@ package com.google.gson.internal.bind.util;
 
 import java.text.ParseException;
 import java.text.ParsePosition;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -37,6 +38,8 @@ import java.util.TimeZone;
 // https://github.com/FasterXML/jackson-databind/blob/2.8/src/main/java/com/fasterxml/jackson/databind/util/ISO8601Utils.java
 @SuppressWarnings("MemberName") // legacy class name
 public class ISO8601Utils {
+  public static int[] coverageList = new int[22];
+    
   private ISO8601Utils() {}
 
   /**
@@ -152,12 +155,14 @@ public class ISO8601Utils {
       // extract year
       int year = parseInt(date, offset, offset += 4);
       if (checkOffset(date, offset, '-')) {
+        coverageList[0] = 1;
         offset += 1;
       }
 
       // extract month
       int month = parseInt(date, offset, offset += 2);
       if (checkOffset(date, offset, '-')) {
+        coverageList[1] = 1;
         offset += 1;
       }
 
@@ -176,6 +181,7 @@ public class ISO8601Utils {
       boolean hasT = checkOffset(date, offset, 'T');
 
       if (!hasT && (date.length() <= offset)) {
+        coverageList[2] = 1;
         Calendar calendar = new GregorianCalendar(year, month - 1, day);
         calendar.setLenient(false);
 
@@ -184,27 +190,34 @@ public class ISO8601Utils {
       }
 
       if (hasT) {
+        coverageList[3] = 1;
 
         // extract hours, minutes, seconds and milliseconds
         hour = parseInt(date, offset += 1, offset += 2);
         if (checkOffset(date, offset, ':')) {
+          coverageList[4] = 1;
           offset += 1;
         }
 
         minutes = parseInt(date, offset, offset += 2);
         if (checkOffset(date, offset, ':')) {
+          coverageList[5] = 1;
           offset += 1;
         }
         // second and milliseconds can be optional
         if (date.length() > offset) {
+          coverageList[6] = 1;
           char c = date.charAt(offset);
           if (c != 'Z' && c != '+' && c != '-') {
+            coverageList[7] = 1;
             seconds = parseInt(date, offset, offset += 2);
             if (seconds > 59 && seconds < 63) {
+              coverageList[8] = 1;
               seconds = 59; // truncate up to 3 leap seconds
             }
             // milliseconds can be optional in the format
             if (checkOffset(date, offset, '.')) {
+              coverageList[9] = 1;
               offset += 1;
               int endOffset = indexOfNonDigit(date, offset + 1); // assume at least one digit
               int parseEndOffset = Math.min(endOffset, offset + 3); // parse up to 3 digits
@@ -212,12 +225,15 @@ public class ISO8601Utils {
               // compensate for "missing" digits
               switch (parseEndOffset - offset) { // number of digits parsed
                 case 2:
+                  coverageList[10] = 1;
                   milliseconds = fraction * 10;
                   break;
                 case 1:
+                  coverageList[11] = 1;
                   milliseconds = fraction * 100;
                   break;
                 default:
+                  coverageList[12] = 1;
                   milliseconds = fraction;
               }
               offset = endOffset;
@@ -228,6 +244,7 @@ public class ISO8601Utils {
 
       // extract timezone
       if (date.length() <= offset) {
+        coverageList[13] = 1;
         throw new IllegalArgumentException("No time zone indicator");
       }
 
@@ -235,9 +252,11 @@ public class ISO8601Utils {
       char timezoneIndicator = date.charAt(offset);
 
       if (timezoneIndicator == 'Z') {
+        coverageList[14] = 1;
         timezone = TIMEZONE_UTC;
         offset += 1;
       } else if (timezoneIndicator == '+' || timezoneIndicator == '-') {
+        coverageList[15] = 1;
         String timezoneOffset = date.substring(offset);
 
         // When timezone has no minutes, we should append it, valid timezones are, for example:
@@ -247,8 +266,10 @@ public class ISO8601Utils {
         offset += timezoneOffset.length();
         // 18-Jun-2015, tatu: Minor simplification, skip offset of "+0000"/"+00:00"
         if (timezoneOffset.equals("+0000") || timezoneOffset.equals("+00:00")) {
+          coverageList[16] = 1;
           timezone = TIMEZONE_UTC;
         } else {
+          coverageList[17] = 1;
           // 18-Jun-2015, tatu: Looks like offsets only work from GMT, not UTC...
           //    not sure why, but that's the way it looks. Further, Javadocs for
           //    `java.util.TimeZone` specifically instruct use of GMT as base for
@@ -260,6 +281,7 @@ public class ISO8601Utils {
 
           String act = timezone.getID();
           if (!act.equals(timezoneId)) {
+            coverageList[18] = 1;
             /* 22-Jan-2015, tatu: Looks like canonical version has colons, but we may be given
              *    one without. If so, don't sweat.
              *   Yes, very inefficient. Hopefully not hit often.
@@ -267,6 +289,7 @@ public class ISO8601Utils {
              */
             String cleaned = act.replace(":", "");
             if (!cleaned.equals(timezoneId)) {
+              coverageList[19] = 1;
               throw new IndexOutOfBoundsException(
                   "Mismatching time zone indicator: "
                       + timezoneId
@@ -276,6 +299,7 @@ public class ISO8601Utils {
           }
         }
       } else {
+        coverageList[20] = 1;
         throw new IndexOutOfBoundsException(
             "Invalid time zone indicator '" + timezoneIndicator + "'");
       }
@@ -300,6 +324,7 @@ public class ISO8601Utils {
     String input = (date == null) ? null : ('"' + date + '"');
     String msg = fail.getMessage();
     if (msg == null || msg.isEmpty()) {
+      coverageList[21] = 1;
       msg = "(" + fail.getClass().getName() + ")";
     }
     ParseException ex =
