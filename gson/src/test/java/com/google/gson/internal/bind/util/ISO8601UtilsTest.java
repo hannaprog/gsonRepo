@@ -133,13 +133,29 @@ public class ISO8601UtilsTest {
   public void testDateParseInvalidTime() {
     String dateStr = "2018-06-25T61:60:62-03:00";
     assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
-   
+
+  @Test
+  public void testDateParseLeapSecondWithMilliseconds() throws ParseException {
+      // This date includes a leap second (60 seconds) and milliseconds (".123")
+      String dateStr = "2016-12-31T23:60:60.123Z";
+      
+      // Expect a parse exception due to leap second handling
+      assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
+
   }
+
+  @Test
+  public void testDateParseWithMismatchingTimezone() {
+        String dateStr = "2018-06-25T12:34:56+99:99";
+        assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
+        assertThat(ISO8601Utils.coverageList[19]).isEqualTo(1);
+  
+}
   @AfterClass
   public static void printCoverageList(){
     for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
       System.out.print(ISO8601Utils.coverageList[i]);
     }
   }
-  
-}
+  }
+
