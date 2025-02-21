@@ -34,6 +34,7 @@ import org.junit.Test;
 
 @SuppressWarnings("MemberName") // class name
 public class ISO8601UtilsTest {
+ 
   @BeforeClass
   public static void InitializeCoverageList(){
     for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
@@ -133,6 +134,7 @@ public class ISO8601UtilsTest {
   public void testDateParseInvalidTime() {
     String dateStr = "2018-06-25T61:60:62-03:00";
     assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
+  }
 
   @Test
   public void testDateParseLeapSecondWithMilliseconds() throws ParseException {
@@ -151,6 +153,7 @@ public class ISO8601UtilsTest {
         assertThat(ISO8601Utils.coverageList[19]).isEqualTo(1);
   
 }
+
   @AfterClass
   public static void printCoverageList(){
     for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
