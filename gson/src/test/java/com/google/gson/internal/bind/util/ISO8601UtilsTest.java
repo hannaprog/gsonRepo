@@ -27,22 +27,26 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 @SuppressWarnings("MemberName") // class name
 public class ISO8601UtilsTest {
-
+  @BeforeClass
+  public static void InitializeCoverageList(){
+    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
+      ISO8601Utils.coverageList[i] = 0;
+    }
+  }
+  
   private static TimeZone utcTimeZone() {
     
     return TimeZone.getTimeZone("UTC");
   }
 
   private static GregorianCalendar createUtcCalendar() {
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      ISO8601Utils.coverageList[i] = 0;
-    }
     TimeZone utc = utcTimeZone();
     GregorianCalendar calendar = new GregorianCalendar(utc);
     // Calendar was created with current time, must clear it
@@ -85,91 +89,57 @@ public class ISO8601UtilsTest {
   @Test
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseWithDefaultTimezone() throws ParseException {
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      ISO8601Utils.coverageList[i]=0;
-  }
     String dateStr = "2018-06-25";
     Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
     Date expectedDate = new GregorianCalendar(2018, Calendar.JUNE, 25).getTime();
     assertThat(date).isEqualTo(expectedDate);
-    System.out.println();
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      System.out.print(ISO8601Utils.coverageList[i]);
-  }
   }
 
   @Test
   public void testDateParseInvalidDay() {
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      ISO8601Utils.coverageList[i]=0;
-    }
     String dateStr = "2022-12-33";
     assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
-    System.out.println();
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      System.out.print(ISO8601Utils.coverageList[i]);
-  } 
   }
 
   @Test
   public void testDateParseInvalidMonth() {
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      ISO8601Utils.coverageList[i]=0;
-  }
     String dateStr = "2022-14-30";
     assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
-    System.out.println();
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      System.out.print(ISO8601Utils.coverageList[i]);
-  }   
   }
 
   @Test
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseWithTimezone() throws ParseException {
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      ISO8601Utils.coverageList[i]=0;
-  }
     String dateStr = "2018-06-25T00:00:00-03:00";
     Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
     GregorianCalendar calendar = createUtcCalendar();
     calendar.set(2018, Calendar.JUNE, 25, 3, 0);
     Date expectedDate = calendar.getTime();
     assertThat(date).isEqualTo(expectedDate);
-    System.out.println();
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      System.out.print(ISO8601Utils.coverageList[i]);
-  } 
   }
 
   @Test
   @SuppressWarnings("UndefinedEquals")
   public void testDateParseSpecialTimezone() throws ParseException {
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      ISO8601Utils.coverageList[i]=0;
-  }
     String dateStr = "2018-06-25T00:02:00-02:58";
     Date date = ISO8601Utils.parse(dateStr, new ParsePosition(0));
     GregorianCalendar calendar = createUtcCalendar();
     calendar.set(2018, Calendar.JUNE, 25, 3, 0);
     Date expectedDate = calendar.getTime();
     assertThat(date).isEqualTo(expectedDate);
-    System.out.println();
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      System.out.print(ISO8601Utils.coverageList[i]);
-  } 
   }
 
   @Test
   public void testDateParseInvalidTime() {
-    for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
-      ISO8601Utils.coverageList[i]=0;
-  }
     String dateStr = "2018-06-25T61:60:62-03:00";
     assertThrows(ParseException.class, () -> ISO8601Utils.parse(dateStr, new ParsePosition(0)));
-    System.out.println();
+   
+  }
+  @AfterClass
+  public static void printCoverageList(){
     for (int i = 0; i < ISO8601Utils.coverageList.length; i++) {
       System.out.print(ISO8601Utils.coverageList[i]);
-  } 
+    }
   }
+  
 }
